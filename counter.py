@@ -19,5 +19,9 @@ def print_number(upper_count):
     print('end')
 
 
-# 数字を表示する
+# 1から10までの数字を表示する
 print_number(10)
+
+
+# 1から20までの数字を表示する
+print_number(20)
