@@ -444,6 +444,130 @@ class RedmineUserManager(BaseUserManager):
             return id
         else:
             return False
+
+######################################################
+# RocketChat用ユーザ管理Class
+######################################################
+# 発行のためのライブラリ取得
+import json
+import requests
+
+# 表示用ライブラリ
+from pprint import pprint 
+
+# yamlに持つ
+HEADERS = {
+    'X-Auth-Token': 'zYGeveBMm79longHcJTwFi425FB6qyLxXDuRXUHAXDS',
+    'X-User-Id': 'sny2QJnFfBHBK4Prc',
+    'Content-Type': 'application/json'
+}
+
+
+class RocketChatUserManager(BaseUserManager):
+    """RocketChatユーザ管理Class
+
+     RocketChatのユーザ管理を行う。
+       ユーザ追加、削除、変更
+    """
+    
+    def __init__(self):
+        pass
+            
+    ########################################################    
+    # ユーザID関連処理
+    ########################################################
+    def userAdd(self, userid, first_name, last_name, mail, INIT_PASS):
+        '''ユーザID登録
+        '''
+        # UserID登録API定義
+        URL = 'http://192.168.179.3:3000/api/v1/users.create'
+
+        # メッセージ構築
+        user = {
+            'email': mail,
+            'name' : f'{last_name} {first_name}',
+            'password': INIT_PASS,
+            'username': userid
+        }
+        
+        # 登録処理
+        try:
+            response = requests.post(
+                URL,
+                data=json.dumps(user),
+                headers=HEADERS,)
+        except Exception as e:
+            print(f'RocketChatユーザ登録に失敗しました： {userid}')
+        else:
+            print(f'RocketChatユーザ登録が完了しました： {userid}')
+        
+    def userDelete(self, userid):
+        '''ユーザ削除処理
+        '''
+        # UserID登録API定義
+        URL = 'http://192.168.179.3:3000/api/v1/users.delete'
+
+        # メッセージ構築
+        user = {
+            'username': userid
+        }
+        
+        # 登録処理
+        try:
+            response = requests.post(
+                URL,
+                data=json.dumps(user),
+                headers=HEADERS,)
+        except Exception as e:
+            print(f'RocketChatユーザ削除に失敗しました： {userid}')
+        else:
+            print(f'RocketChatユーザ削除が完了しました： {userid}')
+
+        
+    def userUpdate(self, userid):
+        pass
+        
+    ########################################################    
+    # グループ関連処理
+    ########################################################
+    # RocketChatのグループは管理者からどうこうする話ではない。
+    # グループ処理は何もしない。
+    def userGroupAdd(self, group, userid):
+        pass
+        
+    def userGroupDelete(self, group, userid):
+        pass
+        
+    ########################################################    
+    # チェック処理
+    ########################################################
+    def is_user(self, userid):
+        '''Redmine ユーザID存在チェック
+        '''
+        # 探索ループ初期処理
+        is_account = False
+        return is_account
+
+    def is_userGroup(self, group):
+        pass
+        
+    def is_userInTheGroup(self, group, userid):
+        pass
+
+    ########################################################    
+    # リリースID取得処理 groupに仕様制約多い
+    ########################################################
+    def getGroupMap(self):
+        pass
+
+    def getGroupResourceID(self, group):
+        pass
+    
+    def getUserResouceID(self, userid):
+        pass
+    
+    
+  
 #-------------------------------------------------                
 import pandas as pd
 columns = ['ログインID','名前','姓','メールアドレス','所属','他部','Lychee利用者','業遂','登録種別','参加RedmineProject','対応種別','依頼責任者','実施希望日','ステータス','備考']
