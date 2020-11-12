@@ -138,6 +138,40 @@ class RocketChatChannelManager(RocketChatManager):
             # listとmapを返す
             return _list, _map    
           
+
+    def getChannellist(self):
+        '''チャンネル一覧およびチャンネルの最終更新時間を取得する
+
+        パブリック、プライベート両方のチャンネルをまとめて処理する
+
+        Args:
+
+        Returns:
+           list: チャンネル一覧のリスト
+           map: チャンネル名と所属ユーザリストのマップ 
+
+        Raises:
+           API実行時のエラー 
+
+        Examples:
+            >>> list_, map_ = R.getChannellist()
+
+        Note:
+            getChannelPubliclist()やgetChannelPrivatelist()と併用する感じ
+            パブリック、プライベートまとめて取得
+
+        '''
+
+        # public,privateそれぞれ取得
+        _list_public, _map_public = self.getChannelPubliclist()
+        _list_private, _map_private = self.getChannelPrivatelist()
+
+        # listとmapを結合して返す
+        _list_public.extend(_list_private)
+        _map_public.update(_map_private)
+
+        return _list_public, _map_public
+              
             
     def getChannelUserlist(self, list_channelname):
         '''チャネル毎の登録ID一覧
