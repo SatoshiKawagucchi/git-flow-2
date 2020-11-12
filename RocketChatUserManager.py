@@ -28,7 +28,7 @@ from UserManager import BaseUserManager
 ################################################
 
 class RocketChatUserManager(BaseUserManager):
-     '''RocketChatユーザ管理Class
+    '''RocketChatユーザ管理Class
 
      RocketChatのユーザ管理を行う。
        ユーザ追加、削除、変更
@@ -101,17 +101,19 @@ class RocketChatUserManager(BaseUserManager):
             'name' :    f'{last_name} {first_name}',
             'password': self.INIT_PASS,
             'username': userid,
-            'roles':    'user',
-            'requirePasswordChange': true,
+#            'roles':    'user',
+            'requirePasswordChange': True,
         }
-        
+        print(user)
+
         # 登録処理
         try:
             response = requests.post(
                 URL,
                 data=json.dumps(user),
-                headers=HEADERS,)
+                headers=self.HEADERS,)
         except Exception as e:
+            print(f'API error: {e}')
             print(f'RocketChatユーザ登録に失敗しました： {userid}')
         else:
             print(f'RocketChatユーザ登録が完了しました： {userid}')
@@ -143,8 +145,8 @@ class RocketChatUserManager(BaseUserManager):
         '''
 
         # 引数チェック 型    
-        if not isinstance(username, str):
-            print(f'引数：usernameの型が正しくありません str  <-> {type(username)}')
+        if not isinstance(userid, str):
+            print(f'引数：useridの型が正しくありません str  <-> {type(userid)}')
             raise TypeError
 
         # UserID登録API定義
@@ -160,8 +162,9 @@ class RocketChatUserManager(BaseUserManager):
             response = requests.post(
                 URL,
                 data=json.dumps(user),
-                headers=HEADERS,)
+                headers=self.HEADERS,)
         except Exception as e:
+            print(f'API error: {e}')
             print(f'RocketChatユーザ削除に失敗しました： {userid}')
         else:
             print(f'RocketChatユーザ削除が完了しました： {userid}')
@@ -199,7 +202,8 @@ class RocketChatUserManager(BaseUserManager):
                 API,
                 headers=self.HEADERS,)
         except Exception as e:
-            print(f'{e}')
+            print(f'API error: {e}')
+            print(f'RocketChatユーザ一覧取得に失敗しました： {userid}')
         finally:
             for u in response.json()['users']:
                 _list.append(u["username"])
@@ -208,40 +212,40 @@ class RocketChatUserManager(BaseUserManager):
             return _list
         
 
-    def userUpdate(self, userid):
-        #####################################################        
-        # うまくいっていない
-        #####################################################        
-        '''Pxxxxxxxxのパスワードを初期化する
-        '''
-        # 引数チェック 型    
-        if not isinstance(userid, str):
-            print(f'引数：useridの型が正しくありません str  <-> {type(userid)}')
-            raise TypeError
-
-        # ユーザ情報更新API定義
-        API = f'{self.URL}/api/v1/users.update'
-
-        # MSG組み立て
-        msg = {'userId': self.getUser_id(userid),
-                'data' :{
-                    "name": userid,
-                    "password": self.INIT_PASS,}
-              }
-        #if __DEBUG__: print(msg)
-
-        # MSG送信
-        try:
-            response = requests.post(
-                API,
-                data=json.dumps(msg),
-                headers=self.HEADERS,)
-        except Exception as e:
-            print(f'{e}')
-        finally:
-            return response.json()
-
-        
+#    def userUpdate(self, userid):
+#    #####################################################        
+#    # うまくいっていない
+#    #####################################################        
+#        '''Pxxxxxxxxのパスワードを初期化する
+#        '''
+#        # 引数チェック 型    
+#        if not isinstance(userid, str):
+#            print(f'引数：useridの型が正しくありません str  <-> {type(userid)}')
+#            raise TypeError
+#
+#        # ユーザ情報更新API定義
+#        API = f'{self.URL}/api/v1/users.update'
+#
+#        # MSG組み立て
+#        msg = {'userId': self.getUser_id(userid),
+#                'data' :{
+#                    "name": userid,
+#                    "password": self.INIT_PASS,}
+#              }
+#        #if __DEBUG__: print(msg)
+#
+#        # MSG送信
+#        try:
+#            response = requests.post(
+#                API,
+#                data=json.dumps(msg),
+#                headers=self.HEADERS,)
+#        except Exception as e:
+#            print(f'API error: {e}')
+#        finally:
+#            return response.json()
+#
+#        
     ########################################################    
     # グループ関連処理
     ########################################################
@@ -259,13 +263,14 @@ class RocketChatUserManager(BaseUserManager):
     def is_user(self, userid):
         '''User名のid情報を取得する
         
-        ユーザ名からユーザIDを取得する 
+        指定したユーザIDがRocketChatに存在するか判定する
 
         Args:
-           channelname: ユーザ名
+           userid: ユーザ名
 
         Returns:
-           str: ユーザ名に対するユーザID 
+           True:  ユーザIDが存在する
+           False: ユーザIDが存在しない
 
         Raises:
            API実行時のエラー 
@@ -274,37 +279,19 @@ class RocketChatUserManager(BaseUserManager):
             >>> R.getUser_id('PIT00000') 
 
         Note:
-            あればID取得（True判定）ができる
-            なければFalse判定が出来る
+            self.getAllUserList()を使用しユーザ一覧listを判定に使用する
 
         '''
+         
+        # Redmineに登録してあるユーザID一覧を取得する
+        _list = self.getAllUserList()
 
-        # 引数チェック 型    
-        if not isinstance(userid, str):
-            print(f'引数：useridの型が正しくありません str  <-> {type(userid)}')
-            raise TypeError
-
-        # ユーザ情報取得API定義
-        API = f'{self.URL}/api/v1/users.info'
-
-        # MSG組み立て
-        msg = {'username': userid,}
-#        if __DEBUG__: print(msg)
-
-        # MSG送信
-        try:
-            response = requests.get(
-                API,
-                params=json.dumps(msg),
-                headers=self.HEADERS,)
-        except Exception as e:
-            print(f'{e}')
-        finally:
-            if response.json()['success']:
-                return response.json()['user']['_id']
-            else:
-                return False
-
+        # 引数にしていたユーザ存在を判定
+        if userid in _list:
+            return True
+        else:
+            return False
+ 
 
     def is_userGroup(self, group):
         pass
