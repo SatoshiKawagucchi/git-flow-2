@@ -15,6 +15,7 @@
 ################################################
 
 import json
+import redminelib
 import requests
 import sys
 
@@ -22,8 +23,14 @@ from pprint import pprint
 from redminelib import Redmine
 
 # 個別ライブラリ
-from UserManger import BaseUserManager
+from UserManager import BaseUserManager
 
+################################################
+# 独自例外定義 
+################################################
+#class MaxRetryError(Exception):
+#    pass
+#
 ################################################
 # RedmineUserManager 
 ################################################
@@ -41,57 +48,63 @@ class RedmineUserManager(BaseUserManager):
 
     """
     
-    def __init__(self, API_KEY, HOST):
+    def __init__(self, HOST, API_KEY):
         """Redmineインスタンス生成
 
         API_KEY,HOSTからRedmineインスタンスを返す
 
         Args:
-            API_KEY (str):   ユーザIDから自動的に決定する4文字の所属会社識別子
-            HOST (str):      業遂か非業遂か
+            HOST (str):      Redmine Host 
+            API_KEY (str):   adminに応じたAPI_KEY
 
         Returns:
-           str: 所属グループ名
 
         Raises:
             TypeError: 引数型の不備
+            Exception: Redmineインスタンス生成不備
 
         Examples:
-            >>> redmine = RedmineUserManager(self.API_KEY, self.HOST) 
+            >>> redmine = RedmineUserManager(HOST, API_KEY) 
 
         Note:
             Redmineのグループは事前に存在する必要があります。
             新しいグループが記載されたとしても自動でRedmine上で作成しません。
+            __init__ではboolを返してはならないので留意
 
         """ 
 
         # 引数チェック 型    
+        if not isinstance(HOST, str):
+            print(f'引数：HOSTの型が正しくありません str <-> {type(HOST)}')
+            raise TypeError
+
         if not isinstance(API_KEY, str):
             print(f'引数：API_KEYの型が正しくありません str <-> {type(API_KEY)}')
             raise TypeError
             
-        if not isinstance(HOST, str):
-            print(f'引数：HOSTの型が正しくありません str <-> {type(HOST)}')
-            raise TypeError
-            
-        # インスタンス変数
-        self.API_KEY = API_KEY
-        self.HOST = HOST
-
         # Redmineインスタンス生成（self.redmine）
+        self.redmine = None
         try:
-            self.redmine = Redmine(self.HOST, key=self.API_KEY)
-        except Exception as e:
+            self.redmine = Redmine(HOST, key=API_KEY)
+        except exception as e: 
             print(f'Redmine Instance生成に失敗しました')
             print(f'エラー詳細：{e}')
         else:
-            print(f'Redmine Instanceを生成しました： {self.redmine}')
+            if not isinstance(self.redmine, redminelib.Redmine):
+                print(f'Redmine Instance生成に失敗しました')
+                raise Exception
             
-        # Group ResouceMap生成（都度生成は無駄なので共有できる資源として最初に生成／維持する）
-        self.groupmap = self.getGroupMap()
-        
-        # 初期処理完了
-        print(f'ユーザ管理初期処理が完了しました')
+            # Group ResouceMap生成（都度生成は無駄なので共有できる資源として最初に生成／維持する）
+            # Redmineインスタンス生成はデタラメなHOSTでも生成できてしまう仕様
+            # 生成したRedmineインスタンスに対し情報取得アクションにより正常？を判定する
+            try:
+                # 生成したRedmineインスタンスに対しアクション
+                self.groupmap = self.getGroupMap()
+            except Exception as e:
+                print(f'正常にインスタンス生成できていません： {e}')
+            else:  
+                # 初期処理完了
+                print(f'ユーザ管理初期処理が完了しました')
             
             
     ########################################################    
@@ -167,6 +180,10 @@ class RedmineUserManager(BaseUserManager):
             # 登録完了チェック
             if u.id:
                 print(f'ユーザID登録が完了しました： ID.No {u.id} : {userid}')
+                return True 
+            else:
+                print(f'すでにユーザIDは登録済です： ID.No {u.id} : {userid}')
+                return False
 
         
     def userDelete(self, userid):
@@ -209,13 +226,16 @@ class RedmineUserManager(BaseUserManager):
                     obj_user.delete()
                 except Exception as e:
                     print(f'ユーザ削除エラー：{userid} {e}')
+                    return False
                 else:
                     print(f'ユーザ削除完了しました：{userid}')
+                    return True
         else:
             print(f'削除対象IDが存在しません：{userid}')
+            return False
         
 
-    def userUpdate(self, userid):
+    def userUpdate(self, userid, INIT_PASS):
         '''ユーザ情報をUpdateする。
         
         ここではパスワード初期化を想定する。
@@ -243,6 +263,10 @@ class RedmineUserManager(BaseUserManager):
         if not isinstance(userid, str):
             print(f'引数：useridの型が正しくありません str <-> {type(userid)}')
             raise TypeError
+
+        if not isinstance(INIT_PASS, str):
+            print(f'引数：INIT_PASSの型が正しくありません str <-> {type(INIT_PASS)}')
+            raise TypeError
             
         if self.is_user(userid):
             # 更新対処ID情報取得
@@ -252,10 +276,13 @@ class RedmineUserManager(BaseUserManager):
                     must_change_passwd = True,)
             except Exception as e:
                 print(f'ユーザ情報更新エラー：{userid} {e}')
+                return False
             else:
                 print(f'ユーザ情報更新完了しました／パスワード初期化：{userid}')
+                return True
         else:
             print(f'更新対象IDが存在しません：{userid}')
+            return False
 
 
     ########################################################    
@@ -294,11 +321,21 @@ class RedmineUserManager(BaseUserManager):
         if not isinstance(userid, str):
             print(f'引数：useridの型が正しくありません str <-> {type(userid)}')
             raise TypeError
+        
+        # そもそもRedmineに指定IDが存在しない
+        if not self.is_user(userid):
+            print(f'指定ユーザIDがRedmineに存在しません: {userid}')           
+            return False
+
+        # 指定グループが存在しない
+        if not self.is_userGroup(group):
+            print(f'登録グループは存在しません: {group}')
+            return False
 
         # 既に登録済か？
         (result, obj_group, obj_user) = self.is_userInTheGroup(group, userid)
-
-        # 指定グループにIDが存在しない場合にのみ実施
+            
+        # 指定グループ（存在する）にIDが存在しない場合にのみ実施
         if not result:
             try:
                 obj_group.user.add(obj_user)
@@ -306,8 +343,10 @@ class RedmineUserManager(BaseUserManager):
                 print(f'{e}')
             else:
                 print(f'グループへID登録が完了しました: {group}: {userid}')
+                return True
         else:
             print(f'ユーザIDはすでにグループに登録済です: {group}:{userid}')
+            return False
         
 
     def userGroupDelete(self, group, userid):
@@ -341,6 +380,16 @@ class RedmineUserManager(BaseUserManager):
             print(f'引数：useridの型が正しくありません str <-> {type(userid)}')
             raise TypeError
 
+        # そもそもRedmineに指定IDが存在しない
+        if not self.is_user(userid):
+            print(f'指定ユーザIDがRedmineに存在しません: {userid}')           
+            return False
+
+        # 指定グループが存在しない
+        if not self.is_userGroup(group):
+            print(f'登録グループは存在しません: {group}')
+            return False
+
         # 既に登録済か？
         (result, obj_group, obj_user) = self.is_userInTheGroup(group, userid)
         # 指定グループにIDが存在する場合にのみ実施
@@ -349,10 +398,13 @@ class RedmineUserManager(BaseUserManager):
                 obj_group.user.remove(obj_user)
             except Exception as e:
                 print(f'{e}')
+                return False
             else:
                 print(f'グループからID削除処理が完了しました: {group}: {userid}')
+                return True
         else:
             print(f'ユーザIDはすでにグループに削除済です: {group}:{userid}')        
+            return False
         
 
     ########################################################    
@@ -395,11 +447,7 @@ class RedmineUserManager(BaseUserManager):
             if _.login == userid:
                 is_account = True
                 break
-                
-        # ID存在結果判定
-        if is_account:
-            print(f'{userid} は登録されています')
-        
+
         return is_account
 
 
@@ -420,7 +468,7 @@ class RedmineUserManager(BaseUserManager):
             Exception: 存在チェック事の例外
 
         Examples:
-            >>> self.is_group('開発推進チーム') 
+            >>> self.is_userGroup('開発推進チーム') 
 
         Note:
             あまりこまごまとした入力チェックをやっていませんので
@@ -433,15 +481,19 @@ class RedmineUserManager(BaseUserManager):
             print(f'引数：groupの型が正しくありません str <-> {type(group)}')
             raise TypeError
             
+        # チェックフラグ
+        is_extend = False
+
         # 存在チェック
         try:
             self.groupmap[group]        
         except Exception as e:
             '''存在しないとExceptionが発生する'''
-            return False
         else:
-            return True
-        
+            is_extend = True
+        finally:
+            return is_extend      
+
 
     def is_userInTheGroup(self, group, userid):
         '''グループにそのユーザが存在するか
@@ -476,26 +528,21 @@ class RedmineUserManager(BaseUserManager):
             print(f'引数：useridの型が正しくありません str <-> {type(userid)}')
             raise TypeError
         
-        # まずそのグループが存在するか
-        if self.is_userGroup(group):
-            # グループのUser一覧を取得する
-            obj_group = self.redmine.group.get(self.getGroupResourceID(group), include='users')
-            
-            # その中にユーザIDが存在するか→どっちの結果の戻り値も使うことに留意
-            obj_id = self.getUserResouceID(userid)
-            for g in list(obj_group.users):
-                # ID存在チェック
-                if g.id == obj_id:
-                    # 結果とすでに得たグループオブジェクト、ターゲットリソースIDを返す
-                    return True, obj_group, obj_id
-                
-            # 結果とすでに得たグループオブジェクト、ターゲットリソースIDを返す
-            return False, obj_group, obj_id
-                
-        else:
-            # どうにもならん
-            return False, False, False
-
+        # グループのUser一覧を取得する
+        obj_group = self.redmine.group.get(self.getGroupResourceID(group), include='users')
+        
+        # その中にユーザIDが存在するか→どっちの結果の戻り値も使うことに留意
+        obj_id = self.getUserResourceID(userid)
+        for g in list(obj_group.users):
+            # ID存在チェック
+            if g.id == obj_id:
+                # すでにグループ登録済判定
+                # 結果とすでに得たグループオブジェクト、ターゲットリソースIDを返す
+                return True, obj_group, obj_id
+        
+        # グループに登録未済
+        # 結果とすでに得たグループオブジェクト、ターゲットリソースIDを返す
+        return False, obj_group, obj_id
 
     ########################################################    
     # リリースID取得処理 groupに仕様制約多い
@@ -529,14 +576,17 @@ class RedmineUserManager(BaseUserManager):
         except Exception as e:
             print(f'Redmineグループ一覧取得に失敗しました： {e}')
         else:
-            print(f'Redmineグループ一覧取得に成功しました')
-
-        # map生成
-        for g in g_all:
-            g_map[g.name]= g.id
-
-        # 結果を返す
-        return g_map
+            # map生成
+            try:
+                for g in g_all:
+                    g_map[g.name]= g.id
+            except Exception as e:
+                print(f'Redmineグループ一覧取得に失敗しました： {e}')
+                return False
+            else:
+                print(f'Redmineグループ一覧取得に成功しました')
+                # 結果を返す
+                return g_map
         
 
     def getGroupResourceID(self, group):
@@ -554,7 +604,7 @@ class RedmineUserManager(BaseUserManager):
             False
     
 
-    def getUserResouceID(self, userid):
+    def getUserResourceID(self, userid):
         '''loginIDからユーザリソースIDを取得する
         '''
         # 引数チェック 型    
@@ -572,7 +622,7 @@ class RedmineUserManager(BaseUserManager):
             return False
 
 
-    def judgeTargetGroupname(self, company, manager, lycheeUser):
+    def judgeTargetGroupname(self, VENDER_MAP, company, manager, lycheeUser):
         """引数情報から所属グループ名を返す
     
          所属会社、業遂、Lychee利用有無から追加するグループ名を決定する
@@ -598,6 +648,10 @@ class RedmineUserManager(BaseUserManager):
         """    
 
         # 引数チェック 型    
+        if not isinstance(VENDER_MAP, dict):
+            print(f'引数：VENDER_MAPの型が正しくありません map <-> {type(VENDER_MAP)}')
+            raise TypeError
+        
         if not isinstance(company, str):
             print(f'引数：companyの型が正しくありません str <-> {type(company)}')
             raise TypeError
@@ -607,16 +661,26 @@ class RedmineUserManager(BaseUserManager):
             raise TypeError
         
         if not isinstance(lycheeUser, bool):
-            print(f'引数：lycheeUserの型が正しくありません bool <-> {type(lychee)}')
+            print(f'引数：lycheeUserの型が正しくありません bool <-> {type(lycheeUser)}')
             raise TypeError
     
+        if not VENDER_MAP:
+            print(f'VENDER_MAPオブジェクトが存在しません')
+            raise NameError
+            
         # 非業遂判定
-        if not manager:
-            return f'{VENDER_MAP[company]}（非業遂）'
-        else:
-            # 業遂でLychee利用有無判定
-            if not lycheeUser:
-                return f'{VENDER_MAP[company]}（業遂）（Lycheeなし）'
+        try:
+            if not manager:
+                return f'{VENDER_MAP[company]}（非業遂）'
             else:
-                return f'{VENDER_MAP[company]}（業遂）'
+                # 業遂でLychee利用有無判定
+                if not lycheeUser:
+                    return f'{VENDER_MAP[company]}（業遂）（Lycheeなし）'
+                else:
+                    return f'{VENDER_MAP[company]}（業遂）'
+        except Exception as e:
+            print(f'Error: 指定したベンダーコードは存在しません {e}')
+            return False
+        else:
+            return False
     
