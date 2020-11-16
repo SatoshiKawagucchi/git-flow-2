@@ -51,11 +51,11 @@ class BaseUserManager(object):
         raise NotImplementedError()
 
     # グループ管理    
-    def userGropuAdd(self):
+    def userGroupAdd(self):
         '''グループにユーザを追加する'''
         raise NotImplementedError()
     
-    def userGropuDelete(self):
+    def userGroupDelete(self):
         '''グループからユーザを削除する'''
         raise NotImplementedError()
         
