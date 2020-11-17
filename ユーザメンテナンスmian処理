@@ -1,0 +1,56 @@
+def main():
+    
+    __DEBUG__ = True
+    
+    # Redmine インスタンス生成
+    redmine = RedmineUserManager(API_KEY, HOST)
+    
+    # 処理対象ユーザ一覧取得
+    # dfに格納済とする（会社の環境に作成済）
+    
+    # 対象データループ
+    for userid, first_name, last_name, mail, company, other_dep,is_lychee, is_manager, handle \
+        in zip(df_users['ログインID'], 
+               df_users['名前'], 
+               df_users['姓'],
+               df_users['メールアドレス'],
+               df_users['所属'], 
+               df_users['他部'],                
+               df_users['Lychee利用者'],
+               df_users['業遂'],
+               df_users['対応種別']
+              ):
+        
+        if __DEBUG__:
+            print(userid, first_name, last_name, mail, company, other_dep, is_lychee, is_manager, handle)
+            
+        # ユーザ処理
+        ## 注：ユーザ処理は何れLDAPに移行することを見越してユーザ処理とグループ処理を分離して記述する
+        
+        ## ユーザ追加
+        if handle == "着任":
+            redmine.userAdd(userid, first_name, last_name, mail, INIT_PASS)
+        ## ユーザ削除
+        elif handle == "離任":
+            redmine.userDelete(userid)
+        ## パスワード初期化
+        elif handle == "パスワード初期化":
+            redmine.userUpdate(userid)
+        else:
+            continue
+        
+        # グループ処理
+        ## 他部に対してはマニュアル対応のためバイパス
+        if not other_dep:
+            print(f'{userid}はダイレクト所属のためグループ処理を行います')
+            if handle == "着任":
+                redmine.userGroupAdd(judge_target_groupname(company, is_manager, is_lychee), userid)
+            elif handle == "離任":
+                # ID削除するとグループからも自動削除されるが、、、LDAPになった時にどうなるのかなあ。。。
+                redmine.userGroupDelete(judge_target_groupname(company, is_manager, is_lychee), userid)
+            else:
+                # 着任、離任以外はグループ処理を行わない
+                continue
+            
+        else:
+            print(f'{userid}は他部所属のためグループ処理をバイパスします')
