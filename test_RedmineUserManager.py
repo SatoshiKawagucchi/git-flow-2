@@ -28,7 +28,7 @@ if __DEBUG__: print(LIBPATH)
 sys.path.append(str(LIBPATH))
 
 # テスト固定パラメータ設定
-HOST = 'http://192.168.179.3:3100'
+HOST = 'http://192.168.10.104:3100'
 API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
 INIT_PASS = "p@ssw0rd"
 VENDER_MAP = {
@@ -108,18 +108,18 @@ def test__init__Error6():
     '''__init__で引数エラー 引数個数超過'''
     RUM = RedmineUserManager(HOST, API_KEY,[])
 
-@pytest.mark.xfail(raises=Exception)
+#@pytest.mark.xfail(raises=Exception)
 def test__init__Error7():
     '''__init__で引数エラー HOST適当に'''
-    #HOST = 'http://192.168.179.3:3100'
+    #HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     HOST = 'http://999.999.999.999' 
     RUM = RedmineUserManager(HOST, API_KEY)
 
-@pytest.mark.xfail(raises=Exception)
+#@pytest.mark.xfail(raises=Exception)
 def test__init__Error8():
     '''__init__で引数エラー API_KEYを適当に'''
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     #API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     API_KEY =  '9999999999999999999999999999999999999999'
     RUM = RedmineUserManager(HOST, API_KEY)
@@ -139,7 +139,7 @@ def test___userAdd__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
     # RedmineUserID削除
@@ -159,7 +159,7 @@ def test___userAdd__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
     # RedmineUserID削除
@@ -183,7 +183,7 @@ def test___userAdd__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
     # RedmineUserID削除
@@ -205,7 +205,7 @@ def test___userAdd__Error2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
     # RedmineUserID削除
@@ -227,7 +227,7 @@ def test___userAdd__Error3():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
     # RedmineUserID削除
@@ -249,7 +249,7 @@ def test___userAdd__Error4():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
     # RedmineUserID削除
@@ -271,7 +271,7 @@ def test___userAdd__Error5():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
     # RedmineUserID削除
@@ -297,7 +297,7 @@ def test___userDelete__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     INIT_PASS = "p@ssw0rd"
     RUM = RedmineUserManager(HOST, API_KEY)
@@ -319,7 +319,7 @@ def test___userDelete__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     INIT_PASS = "p@ssw0rd"
     RUM = RedmineUserManager(HOST, API_KEY)
@@ -343,7 +343,7 @@ def test___userDelete__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     INIT_PASS = "p@ssw0rd"
     RUM = RedmineUserManager(HOST, API_KEY)
@@ -371,7 +371,7 @@ def test___userUpdate__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     INIT_PASS = 'p@ssw0rd'
     RUM = RedmineUserManager(HOST, API_KEY)
@@ -392,7 +392,7 @@ def test___userUpdate__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     INIT_PASS = "p@ssw0rd"
     RUM = RedmineUserManager(HOST, API_KEY)
@@ -415,7 +415,7 @@ def test___userUpdate__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     INIT_PASS = "p@ssw0rd"
     RUM = RedmineUserManager(HOST, API_KEY)
@@ -439,7 +439,7 @@ def test___userUpdate__Error2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     INIT_PASS = "p@ssw0rd"
     RUM = RedmineUserManager(HOST, API_KEY)
@@ -468,7 +468,7 @@ def test___userGroupAdd__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -487,7 +487,7 @@ def test___userGroupAdd__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -505,7 +505,7 @@ def test___userGroupAdd__Normal3():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -527,7 +527,7 @@ def test___userGroupAdd__Normal4():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -550,7 +550,7 @@ def test___userGroupAdd__Normal5():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -571,7 +571,7 @@ def test___userGroupAdd__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -591,7 +591,7 @@ def test___userGroupAdd__Error2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -616,7 +616,7 @@ def test___userGroupDelete__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -639,7 +639,7 @@ def test___userGroupDelete__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -665,7 +665,7 @@ def test___userGroupDelete__Normal3():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -686,7 +686,7 @@ def test___userGroupDelete__Normal4():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -711,7 +711,7 @@ def test___userGroupDelete__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -735,7 +735,7 @@ def test___userGroupDelete__Error2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -763,7 +763,7 @@ def test___is_user__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -785,7 +785,7 @@ def test___is_user__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -808,7 +808,7 @@ def test___is_user__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -832,7 +832,7 @@ def test___is_userGroup__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
     
@@ -850,7 +850,7 @@ def test___is_userGroup__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -870,7 +870,7 @@ def test___is_userGroup__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -889,7 +889,7 @@ def test___is_userInTheGroup__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -912,7 +912,7 @@ def test___is_userInTheGroup__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -937,7 +937,7 @@ def test___is_userInTheGroup__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -964,7 +964,7 @@ def test___is_userInTheGroup__Error2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -990,7 +990,7 @@ def test___getGroupMap__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1009,7 +1009,7 @@ def test___getGroupResourceID__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1027,7 +1027,7 @@ def test___getGroupResourceID__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1046,7 +1046,7 @@ def test___getGroupResourceID__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1066,7 +1066,7 @@ def test___getUserResourceID__Normal1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1089,7 +1089,7 @@ def test___getUserResourceID__Normal2():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1112,7 +1112,7 @@ def test___getUserResourceID__Error1():
     print()
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1144,7 +1144,7 @@ def test___judgeTargetGroupname__Normal1():
     '''
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1154,7 +1154,7 @@ def test___judgeTargetGroupname__Normal1():
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PIT0', True, False)
     assert RC == 'MUIT（業遂）（Lycheeなし）'
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PIT0', False, True)
-    assert RC == 'MUIT（非業遂）'
+    assert RC == 'MUIT（非業遂）（Lycheeあり）'
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PIT0', False, False)
     assert RC == 'MUIT（非業遂）'
 
@@ -1164,7 +1164,7 @@ def test___judgeTargetGroupname__Normal1():
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PHSL', True, False)
     assert RC == '一括（業遂）（Lycheeなし）'
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PHSL', False, True)
-    assert RC == '一括（非業遂）'
+    assert RC == '一括（非業遂）（Lycheeあり）'
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PHSL', False, False)
     assert RC == '一括（非業遂）'
 
@@ -1174,7 +1174,7 @@ def test___judgeTargetGroupname__Normal1():
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PNSD', True, False)
     assert RC == 'NSD（常駐）（業遂）（Lycheeなし）'
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PNSD', False, True)
-    assert RC == 'NSD（常駐）（非業遂）'
+    assert RC == 'NSD（常駐）（非業遂）（Lycheeあり）'
     RC = RUM.judgeTargetGroupname(VENDER_MAP, 'PNSD', False, False)
     assert RC == 'NSD（常駐）（非業遂）'
 
@@ -1199,7 +1199,7 @@ def test___judgeTargetGroupname__Error1():
     '''
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1228,7 +1228,7 @@ def test___judgeTargetGroupname__Error2():
     '''
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1258,7 +1258,7 @@ def test___judgeTargetGroupname__Error3():
     '''
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
@@ -1288,7 +1288,7 @@ def test___judgeTargetGroupname__Error3():
     '''
 
     # Redmineインスタンス生成
-    HOST = 'http://192.168.179.3:3100'
+    HOST = 'http://192.168.10.104:3100'
     API_KEY = '864b3f0933e8084295d47380bf07a168ba2947ac'
     RUM = RedmineUserManager(HOST, API_KEY)
 
