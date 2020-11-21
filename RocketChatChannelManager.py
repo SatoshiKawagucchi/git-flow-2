@@ -19,60 +19,66 @@ import requests
 import sys
 
 from datetime import datetime
+from dateutil import parser
 from pprint import pprint
 from pytz import timezone
 
-
 ################################################
-# Basic Class
+# 環境変数取得 
 ################################################
-
-class RocketChatManager(object):
-    def __init__(self):
-
-        #TODO yaml化
-        self.HEADERS ={
-            'X-Auth-Token': 'zYGeveBMm79longHcJTwFi425FB6qyLxXDuRXUHAXDS',
-            'X-User-Id': 'sny2QJnFfBHBK4Prc',
-            'Content-Type': 'application/json'}
-        
-        self.URL = 'http://192.168.179.3:3000'
-        self.INIT_PASS = 'p@ssw0rd'
-
+#
+#HEADERS ={
+#'X-Auth-Token': 'zYGeveBMm79longHcJTwFi425FB6qyLxXDuRXUHAXDS',
+#'X-User-Id': 'sny2QJnFfBHBK4Prc',
+#'Content-Type': 'application/json'}
+#
+#URL = 'http://192.168.179.3:3000'
+#INIT_PASS = 'p@ssw0rd'
+#
 
 ################################################
 # RocketChatChannelManager 
 ################################################
-class RocketChatChannelManager(RocketChatManager):
-    def __init__(self):
-        super().__init__()
-#        if __DEBUG__: print(self.HEADERS, self.URL)
+class RocketChatChannelManager(object):
+    def __init__(self, HEADERS, URL):
+
+        # 引数チェック 型    
+        if not isinstance(HEADERS, dict):
+            print(f'引数：HEADERSの型が正しくありません dict <-> {type(HEADERS)}')
+            raise TypeError
+
+        # 引数チェック 型    
+        if not isinstance(URL, str):
+            print(f'引数：URLの型が正しくありません str <-> {type(URL)}')
+            raise TypeError
+
+        # インスタンス生成
+        self.HEADERS = HEADERS
+        self.URL = URL
     
     
-    def getChannelPubliclist(self):
+    def getChannelPublicMap(self):
         '''パブリックチャネルのリストと最終更新時間のマップ
         
         パブリックチャンネル名とチャンネル最終更新時間のマップを作成する。
-        ついでにパブリックチャネル名一覧リストを作成する。
 
         Args:
 
         Returns:
-           list: パブリックチャンネル一覧
            map:  パブリックチャンネル名と最終更新時間のマップ 
 
         Raises:
            API実行時のエラー 
 
         Examples:
-            >>> list, map = self.getChannelPubliclist() 
+            >>> map = self.getChannelPublicMap() 
 
         Note:
+            publicとprivateで取得関数が異なるという。。。
 
         '''
 
         # 結果格納
-        _list = []
         _map = {}
 
         # API定義
@@ -84,40 +90,39 @@ class RocketChatChannelManager(RocketChatManager):
                 API,
                 headers=self.HEADERS,)    
         except Exception as e:
-            print(f'{e}')
-        finally:
+            print(f'API実行エラー: {API}')
+            print(f'Error: {e}')
+            return False
+        else:
             for l in response.json()['channels']:
                 _map[l['name']] = l['_updatedAt']
-                _list.append(l['name'])
 
-            # listとmapを返す
-            return _list, _map
+            # mapを返す
+            return _map
 
         
-    def getChannelPrivatelist(self):
+    def getChannelPrivateMap(self):
         '''プライベートチャネルのリストと最終更新時間のマップ
 
         プライベート名とチャンネル最終更新時間のマップを作成する。
-        ついでにプライベート名一覧リストを作成する。
 
         Args:
 
         Returns:
-           list: プライベート一覧
-           map:  プライベート名と最終更新時間のマップ 
+           map:  プライベートチャンネル	名と最終更新時間のマップ 
 
         Raises:
            API実行時のエラー 
 
         Examples:
-            >>> list, map = self.getChannelPrivatelist() 
+            >>> map = self.getChannelPrivateMap() 
 
         Note:
+            publicとprivateで取得関数が異なるという。。。
 
         '''
 
         # 結果格納
-        _list = []
         _map = {}
 
         # API定義
@@ -129,17 +134,38 @@ class RocketChatChannelManager(RocketChatManager):
                 API,
                 headers=self.HEADERS,)    
         except Exception as e:
-            print(f'{e}')
+            print(f'API実行エラー: {API}')
+            print(f'Error: {e}')
+            return False
         finally:
             for l in response.json()['groups']:
                 _map[l['name']] = l['_updatedAt']
-                _list.append(l['name'])
 
-            # listとmapを返す
-            return _list, _map    
+            # mapを返す
+            return _map    
+
+    def exchangeMapkeyToList(self, map):
+        '''mapのkeyからlistを生成する
+
+        ちょっとめんどい変換ヘルパー関数
+
+        '''
+        # 引数チェック 型    
+        if not isinstance(map, dict):
+            print(f'引数：mapの型が正しくありません dict <-> {type(map)}')
+            raise TypeError
+
+        # 入れ物
+        _list = []
+
+        # mapループ
+        for key in map.keys():
+            _list.append(key)
+        
+        return _list
           
 
-    def getChannellist(self):
+    def getChannelMap(self):
         '''チャンネル一覧およびチャンネルの最終更新時間を取得する
 
         パブリック、プライベート両方のチャンネルをまとめて処理する
@@ -147,14 +173,13 @@ class RocketChatChannelManager(RocketChatManager):
         Args:
 
         Returns:
-           list: チャンネル一覧のリスト
            map: チャンネル名と所属ユーザリストのマップ 
 
         Raises:
            API実行時のエラー 
 
         Examples:
-            >>> list_, map_ = R.getChannellist()
+            >>> map_ = R.getChannelMap()
 
         Note:
             getChannelPubliclist()やgetChannelPrivatelist()と併用する感じ
@@ -163,18 +188,20 @@ class RocketChatChannelManager(RocketChatManager):
         '''
 
         # public,privateそれぞれ取得
-        _list_public, _map_public = self.getChannelPubliclist()
-        _list_private, _map_private = self.getChannelPrivatelist()
+        _map_public = self.getChannelPublicMap()
+        _map_private = self.getChannelPrivateMap()
 
-        # listとmapを結合して返す
-        _list_public.extend(_list_private)
-        _map_public.update(_map_private)
-
-        return _list_public, _map_public
+        # mapを結合して返す
+        #TODO Falseでも結合できる？戻り値を見直す必要あり？
+        if ((_map_public) and (_map_private)):
+            _map_public.update(_map_private)
+            return _map_public
+        else:
+            return {}
               
             
-    def getChannelUserlist(self, list_channelname):
-        '''チャネル毎の登録ID一覧
+    def getChannelUserMap(self, list_channelname):
+        '''指定チャンネルの登録ID一覧
         
         listに格納したチャンネルに所属するユーザ一覧を
         チャンネル名と参加しているユーザリストのマップを返す
@@ -190,14 +217,9 @@ class RocketChatChannelManager(RocketChatManager):
            API実行時のエラー 
 
         Examples:
-            >>> list_Public, map_Public = R.getChannelPubliclist()
-            >>> _map = R.getChannelUserlist(list_Public)
-
-            >>> list_Private, map_Private = R.getChannelPrivatelist()
-            >>> _map = R.getChannelUserlist(list_Private)
+            >>> map = getChannelUserMap(['aaaa','bbbb'])
 
         Note:
-            getChannelPubliclist()やgetChannelPrivatelist()と併用する感じ
 
         '''
 
@@ -214,18 +236,14 @@ class RocketChatChannelManager(RocketChatManager):
         APIS = [f'{self.URL}/api/v1/channels.members',
                 f'{self.URL}/api/v1/groups.members']
         
-        # MSG発信チャンネル定義
-        CHANNEL_LIST = list_channelname 
-        
         # 1000人は超えないだろう。。。から
         COUNT = '1000'
         
         # 対象チャンネル名リストでループ
-        for channel in CHANNEL_LIST:
+        for channel in list_channelname:
 
             # MSG組み立て 
             msg = (('roomName', channel),('count',COUNT),) 
-#            if __DEBUG__: print(msg)
             
             # API発行
             for api in APIS:
@@ -235,12 +253,14 @@ class RocketChatChannelManager(RocketChatManager):
                         params=msg,
                         headers=self.HEADERS,)
                 except Exception as e:
-                    print(f'{e}')
-                finally:
+                    print(f'API実行エラー: {API}')
+                    print(f'Error: {e}')
+                    return False
+                else:
                     # ユーザたちを格納するList
                     _list = []
                     
-                    # 結果を得られ場合のみ格納
+                    # 結果を得られた場合のみ格納
                     if response:
                         for l in response.json()['members']:
                             _list.append(f'{l["username"]}')
@@ -279,7 +299,6 @@ class RocketChatChannelManager(RocketChatManager):
         # 今時間生成
         jst_now = datetime.now(timezone('Asia/Tokyo'))
         target = parser.parse(_targetTime).astimezone(timezone('Asia/Tokyo'))
-#        if __DEBUG__: print(jst_now, target)
 
         # いま時間とターゲット時間の差分を秒で返す
         return (jst_now - target).total_seconds()
@@ -316,7 +335,6 @@ class RocketChatChannelManager(RocketChatManager):
 
         # MSG組み立て
         msg = {'roomName': channelname,}
-#        if __DEBUG__: print(msg)
         
         # MSG送信
         try:
@@ -325,8 +343,10 @@ class RocketChatChannelManager(RocketChatManager):
                 params=msg,
                 headers=self.HEADERS,)
         except Exception as e:
-            print(f'{e}')
-        finally:
+            print(f'API実行エラー: {API}')
+            print(f'Error: {e}')
+            return False
+        else:
             if response.json()['success']:
                 return response.json()['room']['_id']
             else:
@@ -370,10 +390,9 @@ class RocketChatChannelManager(RocketChatManager):
         # MSG組み立て
         msg = {'channel': channel,
                'text'   : msg,}
-#        if __DEBUG__: print(msg)
         
         # 指定チャンネルが存在する場合のみ実行 
-        if getChannel_id(channel):
+        if self.getChannel_id(channel):
 
             # MSG送信
             try:
@@ -382,11 +401,15 @@ class RocketChatChannelManager(RocketChatManager):
                     data=json.dumps(msg),
                     headers=self.HEADERS,)
             except Exception as e:
-                print(f'{e}')
-            finally:
-                pprint(response.status_code) 
+                print(f'API実行エラー: {API}')
+                print(f'Error: {e}')
+                return False
+            else:
+                pprint(f'Status code: {response.status_code}') 
+                return True
         else:
             print(f'指定したチャンネルが存在しません: {channel}')
+            return False
 
 
     def closeTargetChannel(self, roomname):
@@ -406,6 +429,7 @@ class RocketChatChannelManager(RocketChatManager):
             >>> R.closeTargetChannel('テストチャンネル')
 
         Note:
+            まとめて消す仕様ではない、1チャンネルづつターゲットで
 
         ''' 
 
@@ -421,10 +445,9 @@ class RocketChatChannelManager(RocketChatManager):
 
         # MSG組み立て
         msg = {'roomId': self.getChannel_id(roomname)}
-#        if __DEBUG__: print(msg)
 
         # まとめてチャンネル削除を遂行
-        for api in APIS:
+        for API in APIS:
             try:
                 response = requests.post(
                     API,
@@ -432,9 +455,11 @@ class RocketChatChannelManager(RocketChatManager):
                     headers=self.HEADERS,)
                 print(response)
             except Exception as e:
-                print(f'{e}')
-            finally:
+                print(f'API実行エラー: {API}')
+                print(f'Error: {e}')
+            else:
                 # 結果をログっぽく返す
                 # 結果を得られた場合のみログを返す
                 if response:
-                    return response.json()        
+                    return response.json()['success']
+
