@@ -670,13 +670,14 @@ class RedmineUserManager(BaseUserManager):
             
         # 業遂／非業遂／Lychee利用判定
         try:
+            # 業遂でLychee利用有無判定
             if manager:
                 if not lycheeUser:
                     return f'{VENDER_MAP[company]}（業遂）（Lycheeなし）'
                 else:
                     return f'{VENDER_MAP[company]}（業遂）'
             else:
-                # 業遂でLychee利用有無判定
+            # 非業遂でLychee利用有無判定
                 if not lycheeUser:
                     return f'{VENDER_MAP[company]}（非業遂）'
                 else:
