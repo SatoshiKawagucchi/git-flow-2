@@ -22,6 +22,18 @@ from pprint import pprint
 # 個別ライブラリ
 from UserManager import BaseUserManager
 
+################################################
+# パラメータ：yamlから取得するのでいったんこれで
+################################################
+#
+#HEADERS ={
+#    'X-Auth-Token': 'zYGeveBMm79longHcJTwFi425FB6qyLxXDuRXUHAXDS',
+#    'X-User-Id': 'sny2QJnFfBHBK4Prc',
+#    'Content-Type': 'application/json'}
+#
+#URL = 'http://192.168.10.104:3000'
+#INIT_PASS = 'p@ssw0rd'
+#
 
 ################################################
 # RocketChatUserManager 
@@ -29,24 +41,32 @@ from UserManager import BaseUserManager
 
 class RocketChatUserManager(BaseUserManager):
     '''RocketChatユーザ管理Class
+     
+    目的別にAPIを生成するので
+    HEADERSとURLはインスタンス変数として扱う
 
      RocketChatのユーザ管理を行う。
        ユーザ追加、削除、変更
     ''' 
     
-    def __init__(self):
-        #TODO yaml化
-        self.HEADERS ={
-            'X-Auth-Token': 'zYGeveBMm79longHcJTwFi425FB6qyLxXDuRXUHAXDS',
-            'X-User-Id': 'sny2QJnFfBHBK4Prc',
-            'Content-Type': 'application/json'}
+    def __init__(self, HEADERS, URL):
 
-        self.URL = 'http://192.168.179.3:3000'
-        self.INIT_PASS = 'p@ssw0rd'
+        # 引数チェック 型    
+        if not isinstance(HEADERS, dict):
+            print(f'引数：HEADERSの型が正しくありません dict <-> {type(HEADERS)}')
+            raise TypeError
 
+        # 引数チェック 型    
+        if not isinstance(URL, str):
+            print(f'引数：URLの型が正しくありません str <-> {type(URL)}')
+            raise TypeError
+    
+        # インスタンス生成
+        self.HEADERS = HEADERS
+        self.URL = URL
             
 
-    def userAdd(self, userid, first_name, last_name, mail):
+    def userAdd(self, userid, first_name, last_name, mail, INIT_PASS):
         '''ユーザ登録
 
         引数情報を元にRocketChatにIDを追加する 
@@ -65,7 +85,7 @@ class RocketChatUserManager(BaseUserManager):
             Exception: ID登録時の例外
 
         Examples:
-            >>>  self.userAdd('PIT00000', 'Satoshi', 'Suzuki', 'satoshi_10_suzuki@mufg.jp')
+            >>>  self.userAdd('PIT00000', 'Satoshi', 'Suzuki', 'satoshi_10_suzuki@mufg.jp', INIT_PASS)
 
         Note:
             /api/v1/users.create'
@@ -92,31 +112,41 @@ class RocketChatUserManager(BaseUserManager):
             print(f'引数：mailの型が正しくありません str  <-> {type(mail)}')
             raise TypeError
 
+        if not isinstance(INIT_PASS, str):
+            print(f'引数：INIT_PASSの型が正しくありません str  <-> {type(INIT_PASS)}')
+            raise TypeError
+
+        # すでにIDを作成済であれば何もしない
+        if self.is_user(userid):
+            print(f'すでにIDは登録済です：{userid}')
+            return True
+
         # UserID登録API定義
-        URL = 'http://192.168.179.3:3000/api/v1/users.create'
+        API = f'{self.URL}/api/v1/users.create'
 
         # メッセージ構築
         user = {
             'email':    mail,
             'name' :    f'{last_name} {first_name}',
-            'password': self.INIT_PASS,
+            'password': INIT_PASS,
             'username': userid,
 #            'roles':    'user',
             'requirePasswordChange': True,
         }
-        print(user)
 
         # 登録処理
         try:
             response = requests.post(
-                URL,
+                API,
                 data=json.dumps(user),
                 headers=self.HEADERS,)
         except Exception as e:
             print(f'API error: {e}')
             print(f'RocketChatユーザ登録に失敗しました： {userid}')
+            return False
         else:
             print(f'RocketChatユーザ登録が完了しました： {userid}')
+            return True
         
 
     def userDelete(self, userid):
@@ -150,24 +180,32 @@ class RocketChatUserManager(BaseUserManager):
             raise TypeError
 
         # UserID登録API定義
-        URL = 'http://192.168.179.3:3000/api/v1/users.delete'
+        API = f'{self.URL}/api/v1/users.delete'
 
         # メッセージ構築
         user = {
             'username': userid
         }
+
+        # すでにIDなければ何もしない
+        if not self.is_user(userid):
+            print(f'すでにIDは削除済です：{userid}')
+            return True
+
         
         # 登録処理
         try:
             response = requests.post(
-                URL,
+                API,
                 data=json.dumps(user),
                 headers=self.HEADERS,)
         except Exception as e:
             print(f'API error: {e}')
             print(f'RocketChatユーザ削除に失敗しました： {userid}')
+            return False
         else:
             print(f'RocketChatユーザ削除が完了しました： {userid}')
+            return True
 
 
     def getAllUserList(self):
@@ -203,12 +241,13 @@ class RocketChatUserManager(BaseUserManager):
                 headers=self.HEADERS,)
         except Exception as e:
             print(f'API error: {e}')
-            print(f'RocketChatユーザ一覧取得に失敗しました： {userid}')
-        finally:
+            print(f'RocketChatユーザ一覧取得に失敗しました')
+        else:
             for u in response.json()['users']:
                 _list.append(u["username"])
 
-            # 結果を返す
+        # 結果を返す
+        finally:
             return _list
         
 
@@ -288,16 +327,20 @@ class RocketChatUserManager(BaseUserManager):
 
         # 引数にしていたユーザ存在を判定
         if userid in _list:
+            print(f'指定IDは存在します: {userid}')
             return True
         else:
+            print(f'指定IDは存在しません: {userid}')
             return False
  
 
     def is_userGroup(self, group):
+        '''RocketChatではユーザグループを設定しない予定'''
         pass
         
 
     def is_userInTheGroup(self, group, userid):
+        '''RocketChatではユーザグループを設定しない予定'''
         pass
 
 
